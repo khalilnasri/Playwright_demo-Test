@@ -6,20 +6,12 @@ from src.pages.login_page import LoginPage
 
 from src.config import BASE_URL
 
-@pytest_asyncio.fixture(scope="session")
+@pytest_asyncio.fixture
 async def browser():
-    """Browser-Fixture: Startet einen Browser für die gesamte Test-Session"""
-
-    is_ci = os.getenv("CI", "false").lower() == "true"
-    headless_mode = is_ci or os.getenv("HEADLESS", "true").lower() == "true"
-
-    async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=headless_mode)
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=False)
         yield browser
-        try:
-            await browser.close()
-        except Exception:
-            pass
+        await browser.close()
         
 @pytest_asyncio.fixture
 async def page(browser):

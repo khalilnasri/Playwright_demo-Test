@@ -1,14 +1,22 @@
-import pytest
-from src.pages.login_page import LoginPage
-from src.pages.inventory_page import InventoryPage
-
-@pytest.mark.asyncio
 async def test_add_to_cart(login, page):
-    login_page = login
-    await login_page.goto()
-    await login_page.login()
-    await login_page.assert_logged_in()
+    print("STEP 1: start")
 
-    inventory = InventoryPage(page)
-    await inventory.add_first_product_to_cart()
-    assert await inventory.is_first_product_in_cart(), "Product was not added to cart"
+    print("STEP 2: login")
+    await login.login("standard_user", "secret_sauce")
+
+    print("STEP 3: inventory visible")
+    await page.wait_for_selector(".inventory_list", timeout=10_000)
+
+    print("STEP 4: wait add-to-cart button")
+    await page.wait_for_selector(
+        "#add-to-cart-sauce-labs-backpack",
+        timeout=10_000
+    )
+
+    print("STEP 5: click add-to-cart")
+    await page.click("#add-to-cart-sauce-labs-backpack")
+
+    print("STEP 6: cart badge")
+    await page.wait_for_selector(".shopping_cart_badge", timeout=10_000)
+
+    print("STEP 7: done")
