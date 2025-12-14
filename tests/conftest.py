@@ -14,7 +14,7 @@ async def browser():
     headless_mode = is_ci or os.getenv("HEADLESS", "true").lower() == "true"
 
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=headless_mode, slow_mo=300)
+        browser = await playwright.chromium.launch(headless=headless_mode)
         yield browser
         try:
             await browser.close()

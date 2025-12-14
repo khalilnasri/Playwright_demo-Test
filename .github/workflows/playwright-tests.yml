@@ -1,14 +1,17 @@
-name: Playwright tests
+name: Playwright Tests
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      CI: true
 
     steps:
       - name: Checkout Code
@@ -17,18 +20,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
+          python-version: '3.11'
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: |
+          pip install -r requirements.txt
+          playwright install --with-deps
+
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
       - name: Run Pytest Tests
-        run: pytest tests/ --maxfail=1 --disable-warnings --tb=short
+        run: |
+          pytest tests/ --maxfail=1 --disable-warnings --tb=short
