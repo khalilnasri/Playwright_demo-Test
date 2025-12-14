@@ -7,7 +7,11 @@ class LoginPage:
         self.page = page
 
     async def goto(self):
-        await self.page.goto(BASE_URL)
+        await self.page.goto(
+        BASE_URL,
+        wait_until="domcontentloaded",
+        timeout=15_000
+    )
 
     async def login(self, user=USERNAME, pwd=PASSWORD):
         await self.page.fill("#user-name", user)
