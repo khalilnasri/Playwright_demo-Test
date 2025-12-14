@@ -1,0 +1,5 @@
+pytest
+pytest-html
+pytest-asyncio
+playwright
+python-dotenvpip install -r requirements.txt
