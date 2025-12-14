@@ -1,42 +1,36 @@
-import os
-import pytest
 import pytest_asyncio
 from playwright.async_api import async_playwright
 from src.pages.login_page import LoginPage
+import os
 
-from src.config import BASE_URL
 
-@pytest_asyncio.fixture(scope="function")
+@pytest_asyncio.fixture
 async def browser():
-    """Browser fixture - erstellt einen neuen Browser für jeden Test"""
-    # CI mode: headless=True wenn CI=true oder wenn kein Display verfügbar ist
+    # CI erkennt man über ENV-Variable
     is_ci = os.getenv("CI", "false").lower() == "true"
-    headless_mode = is_ci or os.getenv("HEADLESS", "false").lower() == "true"
-    
-    async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch(headless=headless_mode, slow_mo=300)
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=is_ci  # ✅ lokal: False | CI: True
+        )
         yield browser
-        # Cleanup: Schließe Browser (Contexts werden automatisch geschlossen)
-        try:
-            await browser.close()
-        except Exception:
-            pass
+        await browser.close()
+
 
 @pytest_asyncio.fixture
 async def page(browser):
-    """Page fixture - erstellt eine neue Seite für jeden Test"""
     context = await browser.new_context()
     page = await context.new_page()
+
+    page.set_default_timeout(10_000)
+    page.set_default_navigation_timeout(15_000)
+
     yield page
-    # Cleanup: Schließe Context (schließt automatisch alle Pages)
-    try:
-        await context.close()
-    except Exception:
-        pass
+    await context.close()
+
 
 @pytest_asyncio.fixture
 async def login(page):
-    """Login fixture - navigiert zur Login-Seite"""
     login_page = LoginPage(page)
     await login_page.goto()
     return login_page
